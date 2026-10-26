@@ -1,0 +1,27 @@
+# Compilação e Build de Firmware (VS Code / PlatformIO / Arduino IDE)
+.pio/
+.vscode/
+.idea/
+*.hex
+*.bin
+*.elf
+
+# Arquivos temporários do KiCad / EasyEDA
+*.kicad_prl
+*.bck
+*-bak
+*.bak
+_autosave-*
+
+# Arquivos de Impressão 3D e Modelagem (Cache)
+*.gcode
+
+# Configurações do Node-RED e credenciais
+node_modules/
+.config.json*
+.config.nodes.json*
+credenciais.json
+
+# Sistema Operacional
+.DS_Store
+Thumbs.db
