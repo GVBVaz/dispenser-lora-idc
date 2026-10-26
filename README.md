@@ -5,7 +5,7 @@ Projeto final desenvolvido para a disciplina de Internet das Coisas do ICT/UNIFE
 ## 👥 Integrantes do Grupo
 * **Integrante 1** - Gabriel Vaz Baruel - 176.323
 * **Integrante 2** - Luiza Dugois Silva Alves - 177.115
-* **Integrante 2** - Robert Angelo de Souza Santos - 163.984
+* **Integrante 3** - Robert Angelo de Souza Santos - 163.984
 
 ## 📁 Estrutura do Repositório
 * `/firmware/dispenser`: Código C++ (ESP32 + LoRa SX1262) do nó sensor acoplado à gaveta.
