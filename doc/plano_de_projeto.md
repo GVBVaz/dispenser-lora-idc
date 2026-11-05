@@ -9,7 +9,7 @@ Documento de planejamento e divisão de tarefas do projeto final de Internet das
 |---|---|---|
 | **Gabriel Vaz Baruel** | Firmware + PCI | Firmware do dispenser e do gateway, projeto e confecção da PCI, OTA. |
 | **Luiza Dugois Silva Alves** | Nuvem | Broker MQTT, fluxo Node-RED, dashboard de monitoramento. |
-| **Robert Angelo de Souza Santos** | Banco + Documentação | Esquema PostgreSQL, integração Node-RED↔banco, documentação e requisitos. |
+| **Robert Angelo de Souza Santos** | Banco + Documentação | Esquema PostgreSQL, integração Node-RED↔banco e documentação. |
 
 > As frentes são o foco principal de cada um, mas o trabalho é colaborativo. O importante
 > é que **cada pessoa tenha commits próprios** para comprovar a contribuição individual
@@ -19,7 +19,7 @@ Documento de planejamento e divisão de tarefas do projeto final de Internet das
 
 > Se faltar qualquer um destes, o projeto é considerado **não entregue**.
 
-- [ ] Levantamento de requisitos — *planilha pronta, em validação pela equipe*
+- [x] Levantamento de requisitos — *planilha pronta*
 - [x] Versionamento de código no Git — *repositório criado e em uso*
 - [ ] Etapa de nuvem em Node-RED
 - [ ] Uso de comunicação LoRa
@@ -43,7 +43,7 @@ Documento de planejamento e divisão de tarefas do projeto final de Internet das
 
 ### Fase 0 — Fundação (em andamento)
 - [x] Estrutura do repositório
-- [x] Levantamento de requisitos (em validação)
+- [x] Levantamento de requisitos
 - [x] Contrato de dados (protocolo LoRa + tópicos MQTT + schema do banco)
 - [ ] Diagramas SysML (requisitos, blocos, caso de uso)
 
@@ -78,7 +78,7 @@ Documento de planejamento e divisão de tarefas do projeto final de Internet das
 
 | Documento | Caminho |
 |---|---|
-| Requisitos (planilha) | `doc/requisitos/levantamento_requisitos.csv` |
+| Requisitos (planilha) | `doc/requisitos/IoT - Requisitos, Especificações Técnicas e Testes.xlsx` |
 | Requisitos (legível) | `doc/requisitos/levantamento_requisitos.md` |
 | Contrato de dados | `doc/arquitetura/protocolo.md` |
 | Esquema do banco | `doc/banco/esquema_banco.sql` |
