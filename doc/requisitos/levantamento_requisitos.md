@@ -3,10 +3,6 @@
 Documento de levantamento formal de requisitos do projeto final da disciplina de
 **Internet das Coisas** (ICT/UNIFESP). Este é um dos itens **obrigatórios** da entrega.
 
-> A versão em planilha (para o template do professor) está em
-> [`levantamento_requisitos.csv`](./levantamento_requisitos.csv) — abra no Excel ou
-> Google Sheets. Esta página Markdown é a versão legível para consulta no GitHub.
-
 ## 1. Visão geral do sistema
 
 O sistema é um **dispenser de medicamentos monitorado** que detecta a retirada do
@@ -36,7 +32,7 @@ Nó Dispenser (ESP32 + SX1262)  --LoRa 915 MHz-->  Gateway (ESP32 + Wi-Fi)
 | Sensor de retirada | **Ultrassônico HC-SR04** (disponível no laboratório) |
 | Compartimentos | **1** no protótipo (arquitetura escalável para N) |
 | Alerta de dose | **Buzzer + LED** |
-| Relógio de tempo real | **DS3231** (I2C) para timestamp confiável |
+| Relógio de tempo real | **DS1302** para timestamp confiável |
 | Alimentação (dispenser) | **Li-ion 18650 + TP4056 + regulador 3,3 V** |
 | Gateway | ESP32 + SX1262 + Wi-Fi, alimentado por USB |
 | Configuração local | **BLE** apenas na configuração inicial |
@@ -73,7 +69,7 @@ Legenda de IDs: **RF** = Requisito Funcional · **RNF** = Requisito Não Funcion
 
 A tabela completa — com **Razão**, **Especificação Técnica**, **Requisito de
 Desempenho**, **Rotina de Teste** e **Critério de Aceitação** de cada requisito — está
-na planilha [`levantamento_requisitos.csv`](./levantamento_requisitos.csv).
+na planilha (.xlsx).
 
 ## 5. Rastreabilidade com a pontuação da disciplina
 
