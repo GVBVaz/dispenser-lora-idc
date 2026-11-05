@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS evento (
     id               BIGSERIAL PRIMARY KEY,
     dispositivo_id   TEXT NOT NULL REFERENCES dispositivo(id),   -- campo "id" do JSON
     tipo             TEXT NOT NULL,                              -- campo "evt": retirada | alerta_disparado | atraso | heartbeat
-    compartimento    INTEGER,                                   -- campo "comp"
+    compartimento    INTEGER,                                    -- campo "comp"
     ocorrido_em      TIMESTAMPTZ NOT NULL,                       -- campo "ts" (horário do RTC no dispositivo)
     recebido_em      TIMESTAMPTZ NOT NULL DEFAULT now(),         -- quando a nuvem recebeu
     firmware_versao  TEXT,                                       -- campo "fw"
