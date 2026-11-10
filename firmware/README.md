@@ -38,6 +38,8 @@ Em **Ferramentas → Gerenciar Bibliotecas**, instale:
 | **Rtc by Makuna** | RTC DS1302 | dispenser |
 | **PubSubClient** | cliente MQTT | gateway |
 
+> O sensor infravermelho TCRT5000 não requer biblioteca — é lido por `digitalRead`.
+
 ### 1.3. Configuração ao gravar (Ferramentas)
 
 - **Placa:** Heltec WiFi LoRa 32(V3)
@@ -52,17 +54,16 @@ Em **Ferramentas → Gerenciar Bibliotecas**, instale:
 O **gateway não precisa de ligação nenhuma** — ele só usa o rádio e o OLED, que já
 são internos da Heltec V3. Basta alimentá-lo por USB.
 
-No **dispenser**, ligamos o sensor ultrassônico, o RTC e o alerta. O rádio e o OLED
+No **dispenser**, ligamos o sensor infravermelho, o RTC e o alerta. O rádio e o OLED
 já são internos (não precisam de fios).
 
 ### 2.1. Tabela de ligações
 
 | Componente | Pino do componente | GPIO na Heltec V3 | Observação |
 |---|---|---|---|
-| HC-SR04 | VCC | **5V** (pino `5V`/`VBUS`) | o sensor precisa de 5V |
-| HC-SR04 | GND | GND | — |
-| HC-SR04 | TRIG | GPIO **5** | ligação direta |
-| HC-SR04 | ECHO | GPIO **6** | **⚠ via divisor de tensão** (ver 2.2) |
+| TCRT5000 | VCC | 3V3 | alimente em 3,3V (saída fica em nível seguro) |
+| TCRT5000 | GND | GND | — |
+| TCRT5000 | D0 (saída digital) | GPIO **6** | ligação direta (sem divisor) |
 | DS1302 | VCC | 3V3 | — |
 | DS1302 | GND | GND | — |
 | DS1302 | CLK | GPIO **4** | — |
@@ -71,30 +72,22 @@ já são internos (não precisam de fios).
 | Buzzer (+) | — | GPIO **7** | buzzer ativo; (−) no GND |
 | LED (ânodo) | — | GPIO **45** | em série com resistor de 220 Ω ao GND |
 
-### 2.2. ⚠ Divisor de tensão no ECHO (NÃO PULE ISTO)
+> **Ajuste de sensibilidade:** o módulo TCRT5000 tem um potenciômetro que regula a
+> distância de detecção. Ajuste-o com o remédio na posição para que o LED indicador do
+> módulo acenda com o remédio presente e apague quando ele for retirado.
+>
+> **Polaridade:** se a detecção ficar invertida (acusar retirada quando o remédio está
+> presente), troque `#define SENSOR_ATIVO_EM_LOW true` para `false` no `dispenser.ino`.
 
-O pino **ECHO do HC-SR04 devolve 5V**, mas os GPIOs do ESP32-S3 **só toleram 3,3V**.
-Ligar o ECHO direto pode **danificar a placa**. Use dois resistores para dividir a
-tensão (ex.: R1 = 1 kΩ e R2 = 2 kΩ):
-
-```
-   ECHO (5V) ----[ R1 = 1k ]----+----[ R2 = 2k ]---- GND
-                                |
-                                +-----> GPIO 6 (chega ~3,3V)
-```
-
-> Regra: a tensão no GPIO = 5V × R2/(R1+R2) = 5 × 2/3 ≈ 3,3V. ✔
-
-### 2.3. Diagrama geral de ligação (dispenser)
+### 2.2. Diagrama geral de ligação (dispenser)
 
 ```
             Heltec V3 (dispenser)
           +-----------------------+
-   5V ----| 5V            GPIO 5  |---- TRIG (HC-SR04)
-  GND ----| GND           GPIO 6  |<--- ECHO (via divisor 1k/2k)
-  3V3 ----| 3V3           GPIO 4  |---- CLK  (DS1302)
-          |               GPIO 3  |<--> DAT  (DS1302)
-          |               GPIO 2  |---- RST  (DS1302)
+  3V3 ----| 3V3           GPIO 6  |<--- D0  (TCRT5000)
+  GND ----| GND           GPIO 4  |---- CLK (DS1302)
+          |               GPIO 3  |<--> DAT (DS1302)
+          |               GPIO 2  |---- RST (DS1302)
           |               GPIO 7  |---- Buzzer (+)
           |               GPIO 45 |---- LED (+ resistor 220R)
           |  [SX1262 e OLED internos — sem fios]  |
@@ -112,7 +105,7 @@ tensão (ex.: R1 = 1 kΩ e R2 = 2 kΩ):
   Wi-Fi e broker MQTT. (O `config.h` não vai para o Git — tem senha.)
   - Para teste rápido, pode usar o broker público `broker.hivemq.com`, porta `1883`.
 - **Dispenser:** confira no topo do `dispenser.ino` o `DISPOSITIVO_ID`, o horário da
-  dose (`DOSE_HORA`/`DOSE_MINUTO`) e o `LIMIAR_PRESENCA_CM`.
+  dose (`DOSE_HORA`/`DOSE_MINUTO`) e a polaridade do sensor (`SENSOR_ATIVO_EM_LOW`).
 - **Os dois lados devem ter os MESMOS parâmetros LoRa** (frequência, SF, BW, CR,
   sync word). Já estão iguais nos dois sketches — não altere um sem o outro.
 
@@ -132,25 +125,28 @@ Objetivo: confirmar que as duas Heltec V3 conversam por LoRa.
 2. Grave `dispenser.ino` na **placa B**. No boot ele envia um `heartbeat`.
 3. **No Monitor Serial do gateway** deve aparecer `LoRa recebido: {"id":"disp-01",...}`
    com o RSSI/SNR.
-4. ✔ Se o gateway mostrar o JSON recebido, o LoRa está funcionando.
+4. ✓ Se o gateway mostrar o JSON recebido, o LoRa está funcionando.
 
 > Dica: para forçar envios, você pode reiniciar o dispenser (botão RST) — a cada boot
 > ele manda um heartbeat.
 
-### Etapa B — Sensor ultrassônico (no dispenser)
+### Etapa B — Sensor infravermelho (no dispenser)
 
-1. Monte o HC-SR04 conforme a seção 2 (**com o divisor de tensão no ECHO**).
-2. Grave o `dispenser.ino` e abra o Monitor Serial.
-3. Aproxime e afaste um objeto do sensor. Ao **remover** o objeto (distância passa de
-   ≤10 cm para >10 cm), deve aparecer `Retirada detectada!` e o evento ser enviado.
-4. ✔ Ajuste `LIMIAR_PRESENCA_CM` se necessário para a sua caixa.
+Objetivo: confirmar a detecção de presença/ausência do remédio.
+
+1. Monte o TCRT5000 conforme a seção 2 (VCC em 3,3V, D0 no GPIO 6).
+2. Com o remédio na posição, ajuste o **potenciômetro** do módulo até o LED indicador
+   do próprio módulo acender (objeto detectado).
+3. Grave o `dispenser.ino` e abra o Monitor Serial.
+4. **Remova** o remédio: deve aparecer `Retirada detectada!` e o evento ser enviado.
+5. ✓ Se a detecção estiver invertida, troque `SENSOR_ATIVO_EM_LOW` para `false`.
 
 ### Etapa C — RTC DS1302 (no dispenser)
 
 1. Monte o DS1302 conforme a seção 2 (lembre da bateria do RTC).
 2. Na **primeira gravação**, o firmware ajusta a hora pela hora de compilação.
 3. Confira no OLED/Serial se o timestamp dos eventos está correto.
-4. ✔ Desligue e religue a placa: a hora deve se manter (prova de que o RTC guarda).
+4. ✓ Desligue e religue a placa: a hora deve se manter (prova de que o RTC guarda).
 
 ### Etapa D — Alerta e lógica de dose
 
@@ -159,7 +155,7 @@ Objetivo: confirmar que as duas Heltec V3 conversam por LoRa.
    deve ser enviado.
 3. **Não** retire o medicamento e aguarde a janela de `TOLERANCIA_MIN`: deve surgir
    um evento `atraso`. (Para testar rápido, baixe a tolerância para 1 minuto.)
-4. ✔ Reponha os valores reais depois do teste.
+4. ✓ Reponha os valores reais depois do teste.
 
 ### Etapa E — Ponta a ponta até o MQTT
 
@@ -168,7 +164,7 @@ Objetivo: confirmar que as duas Heltec V3 conversam por LoRa.
    mosquitto_sub -h broker.hivemq.com -t 'dispenser/+/evento' -v
    ```
 2. Gere eventos no dispenser (retirada, alerta).
-3. ✔ As mensagens JSON devem aparecer no `mosquitto_sub`. A partir daqui, a frente
+3. ✓ As mensagens JSON devem aparecer no `mosquitto_sub`. A partir daqui, a frente
    de **nuvem (Node-RED)** já consegue consumir os dados.
 
 ---
@@ -180,7 +176,8 @@ Objetivo: confirmar que as duas Heltec V3 conversam por LoRa.
 | Monitor Serial vazio | USB CDC desabilitado | Ligue **USB CDC On Boot: Enabled** e regrave |
 | "ERRO LoRa" no OLED | parâmetros ou SPI | confira que os dois lados têm os mesmos parâmetros |
 | Gateway não recebe nada | sync word / antena | confirme antena conectada e `LORA_SYNC_WORD` igual |
-| Distância sempre -1 | ligação do HC-SR04 | revise TRIG/ECHO e o divisor; confira VCC em 5V |
+| Detecção invertida (acusa retirada com remédio presente) | polaridade do módulo | troque `SENSOR_ATIVO_EM_LOW` para `false` |
+| Sensor nunca detecta | sensibilidade / distância | ajuste o potenciômetro do módulo; aproxime o remédio |
 | Placa reinicia ao transmitir | antena ausente / fonte fraca | conecte a antena; use fonte USB boa |
 | Hora do RTC errada/zerada | bateria do DS1302 | troque a bateria; regrave para reajustar |
 

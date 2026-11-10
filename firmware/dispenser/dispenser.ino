@@ -2,10 +2,10 @@
 // DISPENSER — Dispenser de Medicamentos LoRa
 // Placa: Heltec WiFi LoRa 32 V3 (ESP32-S3 + SX1262)
 //
-// Funcao: detecta a retirada do medicamento (sensor ultrassonico), controla
-//         os horarios das doses (RTC DS1302), emite alerta (buzzer + LED) e
-//         transmite os eventos via LoRa para o gateway, no formato definido
-//         em doc/arquitetura/protocolo.md.
+// Funcao: detecta a retirada do medicamento (sensor infravermelho TCRT5000),
+//         controla os horarios das doses (RTC DS1302), emite alerta (buzzer +
+//         LED) e transmite os eventos via LoRa para o gateway, no formato
+//         definido em doc/arquitetura/protocolo.md.
 //
 // Eventos enviados (campo "evt"): retirada | alerta_disparado | atraso | heartbeat
 //
@@ -15,8 +15,8 @@
 //   - Rtc by Makuna (RTC DS1302 — procure por "Rtc by Makuna")
 //   - U8g2        (display OLED embutido)
 //
-// IMPORTANTE (hardware): o pino ECHO do HC-SR04 sai em 5V e DEVE passar por um
-// divisor de tensao antes do GPIO (o ESP32-S3 so tolera 3,3V). Ver firmware/README.md.
+// Sensor: modulo TCRT5000 (infravermelho reflexivo), usando a saida DIGITAL (D0).
+// Alimente o modulo em 3,3V para que a saida fique em nivel seguro ao ESP32-S3.
 // ============================================================================
 
 #include <RadioLib.h>
@@ -39,21 +39,21 @@
 #define DOSE_MINUTO        0          // 08:00
 #define TOLERANCIA_MIN     30         // janela de tolerancia (minutos) antes de marcar atraso
 
-// Distancia (cm) abaixo da qual consideramos que HA medicamento no compartimento.
-// Acima desse limiar => compartimento vazio => retirada.
-#define LIMIAR_PRESENCA_CM 10
+// Polaridade do sensor IR: na maioria dos modulos TCRT5000, a saida D0 vai para
+// LOW quando ha um objeto refletindo perto. Se no seu modulo for o contrario,
+// troque este #define para "false" (uma linha so).
+#define SENSOR_ATIVO_EM_LOW  true
 
 // Intervalo do heartbeat (sinal de vida) em milissegundos.
 #define HEARTBEAT_MS       (5UL * 60UL * 1000UL)   // 5 minutos
 
 // ---- Pinos dos perifericos (GPIOs livres na Heltec V3) ----
-#define PIN_TRIG     5    // HC-SR04 TRIG (saida)
-#define PIN_ECHO     6    // HC-SR04 ECHO (entrada, VIA DIVISOR DE TENSAO!)
-#define PIN_RTC_CLK  4    // DS1302 CLK (SCLK)
-#define PIN_RTC_DAT  3    // DS1302 DAT (I/O)
-#define PIN_RTC_RST  2    // DS1302 RST (CE)
-#define PIN_BUZZER   7    // buzzer ativo
-#define PIN_LED      45   // LED de alerta
+#define PIN_SENSOR_IR 6    // TCRT5000 saida digital D0 (entrada no ESP32)
+#define PIN_RTC_CLK   4    // DS1302 CLK (SCLK)
+#define PIN_RTC_DAT   3    // DS1302 DAT (I/O)
+#define PIN_RTC_RST   2    // DS1302 RST (CE)
+#define PIN_BUZZER    7    // buzzer ativo
+#define PIN_LED       45   // LED de alerta
 
 // ---- Pinos do SX1262 (FIXOS na Heltec V3) ----
 #define LORA_NSS   8
@@ -87,7 +87,7 @@ RtcDS1302<ThreeWire> rtc(fiosRtc);
 U8G2_SSD1306_128X64_NONAME_F_HW_I2C oled(U8G2_R0, OLED_RST, OLED_SCL, OLED_SDA);
 
 // ---- Estado ----
-bool medicamentoPresente = true;     // estado anterior do compartimento
+bool medicamentoAntes = true;        // estado anterior do compartimento
 bool alertaDisparadoHoje = false;    // evita repetir o alerta da mesma dose
 bool atrasoRegistradoHoje = false;   // evita repetir o evento de atraso
 int  ultimoDiaProcessado = -1;       // para resetar as flags a cada novo dia
@@ -105,18 +105,14 @@ void mostrarOled(const String& l1, const String& l2) {
 }
 
 // --------------------------------------------------------------------------
-// Le a distancia do HC-SR04 em centimetros. Retorna -1 em caso de timeout.
+// Le o sensor IR e informa se HA medicamento no compartimento.
+// A saida digital do TCRT5000 indica presenca; a polaridade e configuravel
+// pelo #define SENSOR_ATIVO_EM_LOW.
 // --------------------------------------------------------------------------
-long lerDistanciaCm() {
-  digitalWrite(PIN_TRIG, LOW);
-  delayMicroseconds(2);
-  digitalWrite(PIN_TRIG, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(PIN_TRIG, LOW);
-
-  long duracao = pulseIn(PIN_ECHO, HIGH, 30000UL);  // timeout 30 ms (~5 m)
-  if (duracao == 0) return -1;
-  return duracao / 58;   // conversao padrao do HC-SR04 (us -> cm)
+bool medicamentoPresente() {
+  int nivel = digitalRead(PIN_SENSOR_IR);
+  bool detectouObjeto = SENSOR_ATIVO_EM_LOW ? (nivel == LOW) : (nivel == HIGH);
+  return detectouObjeto;
 }
 
 // --------------------------------------------------------------------------
@@ -193,8 +189,7 @@ void setup() {
   Serial.begin(115200);
   delay(300);
 
-  pinMode(PIN_TRIG, OUTPUT);
-  pinMode(PIN_ECHO, INPUT);
+  pinMode(PIN_SENSOR_IR, INPUT);
   pinMode(PIN_BUZZER, OUTPUT);
   pinMode(PIN_LED, OUTPUT);
   digitalWrite(PIN_BUZZER, LOW);
@@ -220,6 +215,9 @@ void setup() {
 
   iniciarLoRa();
 
+  // Estado inicial do compartimento.
+  medicamentoAntes = medicamentoPresente();
+
   mostrarOled("Dispenser OK", "Monitorando");
   enviarEvento("heartbeat");          // avisa que esta online
   ultimoHeartbeat = millis();
@@ -236,17 +234,14 @@ void loop() {
   }
 
   // ---- 1) Detecta retirada do medicamento ----
-  long dist = lerDistanciaCm();
-  if (dist >= 0) {
-    bool presenteAgora = (dist <= LIMIAR_PRESENCA_CM);
-    if (medicamentoPresente && !presenteAgora) {
-      // Transicao presente -> ausente = retirada.
-      Serial.println("Retirada detectada!");
-      mostrarOled("Retirada!", timestampAgora());
-      enviarEvento("retirada");
-    }
-    medicamentoPresente = presenteAgora;
+  bool presenteAgora = medicamentoPresente();
+  if (medicamentoAntes && !presenteAgora) {
+    // Transicao presente -> ausente = retirada.
+    Serial.println("Retirada detectada!");
+    mostrarOled("Retirada!", timestampAgora());
+    enviarEvento("retirada");
   }
+  medicamentoAntes = presenteAgora;
 
   // ---- 2) Alerta no horario da dose ----
   if (!alertaDisparadoHoje &&
@@ -259,7 +254,7 @@ void loop() {
   }
 
   // ---- 3) Atraso: passou a janela de tolerancia e o remedio ainda esta la ----
-  if (alertaDisparadoHoje && !atrasoRegistradoHoje && medicamentoPresente) {
+  if (alertaDisparadoHoje && !atrasoRegistradoHoje && presenteAgora) {
     int minutosDesdeDose =
         (agora.Hour() * 60 + agora.Minute()) - (DOSE_HORA * 60 + DOSE_MINUTO);
     if (minutosDesdeDose >= TOLERANCIA_MIN) {
