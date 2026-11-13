@@ -9,7 +9,7 @@
 // Fluxo:  LoRa (recebe JSON)  ->  Wi-Fi  ->  MQTT publish em dispenser/<id>/evento
 //
 // Bibliotecas necessarias (Arduino IDE -> Gerenciador de Bibliotecas):
-//   - RadioLib            (radio SX1262)
+//   - RadioLib            (radio SX1262) — testado com a versao 8.0.0
 //   - PubSubClient        (cliente MQTT)
 //   - ArduinoJson         (ler o campo "id" do JSON para montar o topico)
 //   - U8g2                (display OLED embutido)
@@ -41,10 +41,11 @@
 #define VEXT_CTRL  36   // controla a alimentacao do OLED (LOW = liga)
 
 // ---- Parametros LoRa (DEVEM ser iguais nos dois lados: gateway e dispenser) ----
-#define LORA_FREQ        915.0   // MHz (banda livre no Brasil)
-#define LORA_BANDWIDTH   125.0   // kHz
+// RadioLib 8.x: frequencia e bandwidth sao inteiros COM UNIDADE (macros abaixo).
+#define LORA_FREQ_MHZ    915     // MHz (banda livre no Brasil)
+#define LORA_BW_KHZ      125     // kHz
 #define LORA_SF          9       // spreading factor
-#define LORA_CR          7       // coding rate (4/7)
+#define LORA_CR          7       // coding rate 4/7 (valores validos: 5 a 8)
 #define LORA_SYNC_WORD   0x34    // palavra de sincronismo (rede privada)
 #define LORA_POWER       22      // dBm (maximo do SX1262)
 
@@ -81,7 +82,8 @@ void conectarWiFi() {
     delay(500);
     Serial.print(".");
   }
-  Serial.print("\nWi-Fi conectado. IP: ");
+  Serial.print("
+Wi-Fi conectado. IP: ");
   Serial.println(WiFi.localIP());
   mostrarOled("Wi-Fi OK", WiFi.localIP().toString());
 }
@@ -112,22 +114,46 @@ void conectarMQTT() {
 }
 
 // --------------------------------------------------------------------------
-// Inicializa o radio LoRa em modo de recepcao continua.
+// Inicializa o radio LoRa (SX1262 da Heltec V3) em modo de recepcao continua.
+// RadioLib 8.x: configuracao via struct ConfigLoRa_t; TCXO alimentado pelo
+// DIO3 e RF switch no DIO2 (passos essenciais na Heltec V3).
 // --------------------------------------------------------------------------
 void iniciarLoRa() {
   SPI.begin(LORA_SCK, LORA_MISO, LORA_MOSI, LORA_NSS);
   Serial.print("Iniciando LoRa... ");
-  int estado = radio.begin(LORA_FREQ, LORA_BANDWIDTH, LORA_SF, LORA_CR,
-                           LORA_SYNC_WORD, LORA_POWER);
-  if (estado == RADIOLIB_ERR_NONE) {
-    Serial.println("OK");
-  } else {
-    Serial.print("FALHOU, codigo ");
+
+  // RadioLib 8.x: configuracao via struct ConfigLoRa_t.
+  // ATENCAO: frequency e bandwidth sao inteiros COM UNIDADE (macros abaixo).
+  ConfigLoRa_t cfg;
+  cfg.frequency       = RADIOLIB_UNIT_MEGA(LORA_FREQ_MHZ);  // 915 MHz
+  cfg.bandwidth       = RADIOLIB_UNIT_KILO(LORA_BW_KHZ);    // 125 kHz
+  cfg.spreadingFactor = LORA_SF;
+  cfg.codingRate      = LORA_CR;
+  cfg.syncWord        = LORA_SYNC_WORD;
+  cfg.power           = LORA_POWER;
+
+  int estado = radio.begin(cfg);
+  if (estado != RADIOLIB_ERR_NONE) {
+    Serial.print("FALHOU no begin(), codigo ");
     Serial.println(estado);
-    mostrarOled("ERRO LoRa", String(estado));
+    mostrarOled("ERRO LoRa", "begin " + String(estado));
     while (true) { delay(1000); }   // trava: sem radio nao ha o que fazer
   }
-  radio.setPacketReceivedAction(ISR_recepcao);
+
+  // ---- PASSO CRITICO NA HELTEC V3 ----
+  // TCXO alimentado pelo DIO3 do SX1262 (RadioLib 8.x usa enum de tensao).
+  estado = radio.setTCXO(Voltage1V8);
+  if (estado != RADIOLIB_ERR_NONE) {
+    Serial.print("Aviso: setTCXO() retornou ");
+    Serial.println(estado);
+  }
+  // DIO2 controla o chaveamento da antena (RF switch) na Heltec V3.
+  radio.setDio2AsRfSwitch(true);
+
+  Serial.println("OK");
+
+  // RadioLib 8.x: setIrqAction substitui setPacketReceivedAction.
+  radio.setIrqAction(ISR_recepcao);
   radio.startReceive();
 }
 
@@ -136,7 +162,7 @@ void iniciarLoRa() {
 // --------------------------------------------------------------------------
 void publicarEvento(const String& payload) {
   // Descobre o id do dispenser para montar o topico dispenser/<id>/evento.
-  StaticJsonDocument<256> doc;
+  JsonDocument doc;
   DeserializationError erro = deserializeJson(doc, payload);
   String id = "desconhecido";
   if (!erro && doc.containsKey("id")) {
