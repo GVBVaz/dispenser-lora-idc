@@ -82,8 +82,7 @@ void conectarWiFi() {
     delay(500);
     Serial.print(".");
   }
-  Serial.print("
-Wi-Fi conectado. IP: ");
+  Serial.print("Wi-Fi conectado. IP: ");
   Serial.println(WiFi.localIP());
   mostrarOled("Wi-Fi OK", WiFi.localIP().toString());
 }
