@@ -40,6 +40,27 @@
 #define DOSE_MINUTO        0          // 08:00
 #define TOLERANCIA_MIN     30         // janela de tolerancia (minutos) antes de marcar atraso
 
+// ============================================================================
+// ACERTO DO RELOGIO (RTC DS1302) — fazer UMA vez, com a bateria instalada
+// ----------------------------------------------------------------------------
+// O DS1302 nao "descobre" a hora sozinho: alguem precisa acerta-lo uma vez, e
+// a bateria CR2032 mantem a contagem com a placa desligada.
+//
+// COMO ACERTAR A HORA REAL:
+//   1. Coloque a bateria CR2032 no modulo.
+//   2. Descomente a linha ACERTAR_RELOGIO abaixo e ponha a data/hora REAL
+//      (ano, mes, dia, hora, minuto, segundo) — horario de Brasilia.
+//   3. Compile e grave. O relogio sera acertado com esse valor.
+//   4. Comente a linha de novo (coloque // na frente) e grave outra vez.
+//      Isso e ESSENCIAL: se deixar descomentada, a cada reinicio o relogio
+//      volta para esse horario fixo, em vez de continuar contando.
+//
+// Com a linha comentada, o firmware so acerta o relogio automaticamente (pela
+// hora de compilacao) quando a hora estiver invalida (ex.: sem bateria).
+// ----------------------------------------------------------------------------
+// #define ACERTAR_RELOGIO   RtcDateTime(2026, 11, 10, 21, 58, 0)
+// ============================================================================
+
 // Sensor TCRT5000 CRU (componente, nao modulo): leitura ANALOGICA.
 // Nesta montagem (coletor no ponto de leitura + pull-up de 10k para 3.3V e
 // emissor no GND), a tensao no GPIO CAI quando ha objeto refletindo perto.
@@ -242,14 +263,24 @@ void setup() {
 
   // Inicializa o RTC DS1302.
   rtc.Begin();
+  // O DS1302 precisa estar com escrita habilitada e rodando ANTES de acertar.
+  if (rtc.GetIsWriteProtected()) rtc.SetIsWriteProtected(false);
+  if (!rtc.GetIsRunning())       rtc.SetIsRunning(true);
+
+#ifdef ACERTAR_RELOGIO
+  // Modo de acerto manual: grava a data/hora REAL definida no #define do topo.
+  // Lembre de comentar o #define e regravar depois, senao o relogio reseta
+  // para este horario a cada boot.
+  Serial.println("ACERTANDO o relogio com a data/hora manual definida no codigo.");
+  rtc.SetDateTime(ACERTAR_RELOGIO);
+#else
   if (!rtc.IsDateTimeValid()) {
-    // Hora invalida (primeira vez ou bateria do RTC fraca): ajusta pela
-    // data/hora da compilacao. Faca isso UMA vez com o RTC com bateria boa.
+    // Hora invalida (primeira vez ou sem bateria no RTC): ajusta pela
+    // data/hora da compilacao. Para a hora REAL, use o #define ACERTAR_RELOGIO.
     Serial.println("RTC sem hora valida — ajustando pela hora de compilacao.");
     rtc.SetDateTime(RtcDateTime(__DATE__, __TIME__));
   }
-  if (rtc.GetIsWriteProtected()) rtc.SetIsWriteProtected(false);
-  if (!rtc.GetIsRunning())       rtc.SetIsRunning(true);
+#endif
 
   iniciarLoRa();
 
