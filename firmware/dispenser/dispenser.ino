@@ -15,8 +15,9 @@
 //   - Rtc by Makuna (RTC DS1302 — procure por "Rtc by Makuna")
 //   - U8g2        (display OLED embutido)
 //
-// Sensor: modulo TCRT5000 (infravermelho reflexivo), usando a saida DIGITAL (D0).
-// Alimente o modulo em 3,3V para que a saida fique em nivel seguro ao ESP32-S3.
+// Sensor: componente TCRT5000 CRU (nao modulo) — infravermelho reflexivo.
+// LED IR em serie com 220 ohm (3.3V); fototransistor com pull-up de 10k para
+// 3.3V e emissor no GND; o ponto de leitura vai para um pino ANALOGICO (ADC).
 // ============================================================================
 
 #include <RadioLib.h>
@@ -39,16 +40,24 @@
 #define DOSE_MINUTO        0          // 08:00
 #define TOLERANCIA_MIN     30         // janela de tolerancia (minutos) antes de marcar atraso
 
-// Polaridade do sensor IR: na maioria dos modulos TCRT5000, a saida D0 vai para
-// LOW quando ha um objeto refletindo perto. Se no seu modulo for o contrario,
-// troque este #define para "false" (uma linha so).
-#define SENSOR_ATIVO_EM_LOW  true
+// Sensor TCRT5000 CRU (componente, nao modulo): leitura ANALOGICA.
+// Nesta montagem (coletor no ponto de leitura + pull-up de 10k para 3.3V e
+// emissor no GND), a tensao no GPIO CAI quando ha objeto refletindo perto.
+// Portanto "ha medicamento" = leitura ABAIXO do limiar.
+//
+// LIMIAR_IR e o valor de corte do analogRead (0..4095 no ESP32-S3). Ajuste-o
+// observando os valores crus impressos no Monitor Serial (ver medicamentoPresente).
+#define LIMIAR_IR            2000
+
+// Se a deteccao ficar invertida (acusar retirada com o remedio presente, ou
+// vice-versa), troque para "false" — inverte a comparacao com o limiar.
+#define OBJETO_ABAIXO_DO_LIMIAR  true
 
 // Intervalo do heartbeat (sinal de vida) em milissegundos.
 #define HEARTBEAT_MS       (5UL * 60UL * 1000UL)   // 5 minutos
 
 // ---- Pinos dos perifericos (GPIOs livres na Heltec V3) ----
-#define PIN_SENSOR_IR 6    // TCRT5000 saida digital D0 (entrada no ESP32)
+#define PIN_SENSOR_IR 6    // TCRT5000 (coletor do fototransistor) — pino ANALOGICO (ADC1)
 #define PIN_RTC_CLK   4    // DS1302 CLK (SCLK)
 #define PIN_RTC_DAT   3    // DS1302 DAT (I/O)
 #define PIN_RTC_RST   2    // DS1302 RST (CE)
@@ -106,13 +115,19 @@ void mostrarOled(const String& l1, const String& l2) {
 }
 
 // --------------------------------------------------------------------------
-// Le o sensor IR e informa se HA medicamento no compartimento.
-// A saida digital do TCRT5000 indica presenca; a polaridade e configuravel
-// pelo #define SENSOR_ATIVO_EM_LOW.
+// Le o sensor IR (TCRT5000 cru) por leitura ANALOGICA e informa se HA
+// medicamento no compartimento. A tensao e convertida pelo pull-up de 10k;
+// com objeto refletindo perto a leitura cai abaixo do limiar (ver #defines).
 // --------------------------------------------------------------------------
 bool medicamentoPresente() {
-  int nivel = digitalRead(PIN_SENSOR_IR);
-  bool detectouObjeto = SENSOR_ATIVO_EM_LOW ? (nivel == LOW) : (nivel == HIGH);
+  int leitura = analogRead(PIN_SENSOR_IR);
+
+  // Imprime o valor cru para calibrar o LIMIAR_IR no laboratorio.
+  Serial.print("IR analogico: ");
+  Serial.println(leitura);
+
+  bool detectouObjeto = OBJETO_ABAIXO_DO_LIMIAR ? (leitura < LIMIAR_IR)
+                                                : (leitura > LIMIAR_IR);
   return detectouObjeto;
 }
 
@@ -212,7 +227,7 @@ void setup() {
   Serial.begin(115200);
   delay(300);
 
-  pinMode(PIN_SENSOR_IR, INPUT);
+  // PIN_SENSOR_IR e lido via analogRead (ADC) — nao precisa de pinMode.
   pinMode(PIN_BUZZER, OUTPUT);
   pinMode(PIN_LED, OUTPUT);
   digitalWrite(PIN_BUZZER, LOW);
