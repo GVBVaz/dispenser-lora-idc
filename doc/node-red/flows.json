@@ -1,0 +1,985 @@
+[
+    {
+        "id": "b1914b3d9178b02e",
+        "type": "tab",
+        "label": "Fluxo 1",
+        "disabled": false,
+        "info": "",
+        "env": [
+            {
+                "name": "SUPABASE_DB_PASSWORD",
+                "value": "lgrbaruel1234",
+                "type": "str"
+            }
+        ]
+    },
+    {
+        "id": "f1438fc7824ee337",
+        "type": "postgreSQLConfig",
+        "name": "LGR",
+        "host": "aws-1-us-east-1.pooler.supabase.com",
+        "hostFieldType": "str",
+        "port": 5432,
+        "portFieldType": "num",
+        "database": "postgres",
+        "databaseFieldType": "str",
+        "ssl": "true",
+        "sslFieldType": "bool",
+        "applicationName": "",
+        "applicationNameType": "str",
+        "max": 10,
+        "maxFieldType": "num",
+        "idle": 1000,
+        "idleFieldType": "num",
+        "connectionTimeout": 10000,
+        "connectionTimeoutFieldType": "num",
+        "userFieldType": "cred",
+        "userEnv": "",
+        "passwordFieldType": "cred",
+        "passwordEnv": ""
+    },
+    {
+        "id": "0e7e29656ea11662",
+        "type": "ui-base",
+        "name": "Doses",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+            "ui-notification",
+            "ui-control"
+        ],
+        "showPathInSidebar": false,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default",
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 1,
+        "showDisconnectNotification": true,
+        "allowInstall": false
+    },
+    {
+        "id": "4b0986e16fdbfe13",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#fcfcfd",
+            "primary": "#0d74ce",
+            "bgPage": "#f9f9fb",
+            "groupBg": "#ffffff",
+            "groupOutline": "#d9d9e0"
+        },
+        "sizes": {
+            "density": "default",
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "6a8cb4b816b448e9",
+        "type": "ui-page",
+        "name": "Dashboard",
+        "ui": "0e7e29656ea11662",
+        "path": "/page1",
+        "icon": "home",
+        "layout": "grid",
+        "theme": "4b0986e16fdbfe13",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": "0",
+                "cols": "3"
+            },
+            {
+                "name": "Tablet",
+                "px": "576",
+                "cols": "6"
+            },
+            {
+                "name": "Small Desktop",
+                "px": "768",
+                "cols": "9"
+            },
+            {
+                "name": "Desktop",
+                "px": "1024",
+                "cols": "12"
+            }
+        ],
+        "tabs": [],
+        "order": 2,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "49dc2f19cceea80b",
+        "type": "ui-group",
+        "name": "Controle de eventos",
+        "page": "6a8cb4b816b448e9",
+        "width": 6,
+        "height": 1,
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default",
+        "keepLoaded": false,
+        "tab": ""
+    },
+    {
+        "id": "49670a98f4b06ea4",
+        "type": "ui-page",
+        "name": "Controle de doses",
+        "ui": "0e7e29656ea11662",
+        "path": "/page2",
+        "icon": "home",
+        "layout": "notebook",
+        "theme": "4b0986e16fdbfe13",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": "0",
+                "cols": "3"
+            },
+            {
+                "name": "Tablet",
+                "px": "576",
+                "cols": "6"
+            },
+            {
+                "name": "Small Desktop",
+                "px": "768",
+                "cols": "9"
+            },
+            {
+                "name": "Desktop",
+                "px": "1024",
+                "cols": "12"
+            }
+        ],
+        "tabs": [],
+        "order": 1,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "7fbfad4e4b0cfebc",
+        "type": "ui-group",
+        "name": "Cadastro de dose",
+        "page": "49670a98f4b06ea4",
+        "width": 6,
+        "height": 1,
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default",
+        "keepLoaded": false,
+        "tab": ""
+    },
+    {
+        "id": "02d7922915043eb8",
+        "type": "ui-group",
+        "name": "Deletar Doses",
+        "page": "49670a98f4b06ea4",
+        "width": 6,
+        "height": 1,
+        "order": -1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default",
+        "keepLoaded": false,
+        "tab": ""
+    },
+    {
+        "id": "56eca8603d2838f0",
+        "type": "postgresql",
+        "z": "b1914b3d9178b02e",
+        "name": "conexao",
+        "query": "SELECT * FROM dispositivo;",
+        "postgreSQLConfig": "f1438fc7824ee337",
+        "split": false,
+        "rowsPerMsg": 1,
+        "outputs": 1,
+        "x": 700,
+        "y": 420,
+        "wires": [
+            [
+                "0c5c56906cb1e39b"
+            ]
+        ]
+    },
+    {
+        "id": "edef21ee334e43bd",
+        "type": "inject",
+        "z": "b1914b3d9178b02e",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 260,
+        "y": 420,
+        "wires": [
+            [
+                "1717301d1d9651f4"
+            ]
+        ]
+    },
+    {
+        "id": "0c5c56906cb1e39b",
+        "type": "debug",
+        "z": "b1914b3d9178b02e",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 940,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "1717301d1d9651f4",
+        "type": "function",
+        "z": "b1914b3d9178b02e",
+        "name": "function 1",
+        "func": "msg.pgConfig = {\n  user: \"postgres.jbnlcdliinhlrixgzeml\",\n  password: env.get(\"SUPABASE_DB_PASSWORD\"),\n  host: \"aws-1-us-east-1.pooler.supabase.com\",\n  database: \"postgres\",\n  port: 5432,\n  ssl: { rejectUnauthorized: false }\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 480,
+        "y": 420,
+        "wires": [
+            [
+                "56eca8603d2838f0"
+            ]
+        ]
+    },
+    {
+        "id": "936f64ebf5e19d2e",
+        "type": "inject",
+        "z": "b1914b3d9178b02e",
+        "name": "dashboard",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "30",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 580,
+        "wires": [
+            [
+                "6b082b041f11f0d4"
+            ]
+        ]
+    },
+    {
+        "id": "6b082b041f11f0d4",
+        "type": "function",
+        "z": "b1914b3d9178b02e",
+        "name": "function 2",
+        "func": "msg.pgConfig = {\n  user: \"postgres.jbnlcdliinhlrixgzeml\",\n  password: env.get(\"SUPABASE_DB_PASSWORD\"),\n  host: \"aws-1-us-east-1.pooler.supabase.com\",\n  database: \"postgres\",\n  port: 5432,\n  ssl: { rejectUnauthorized: false }\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 580,
+        "wires": [
+            [
+                "db026363602ae16b"
+            ]
+        ]
+    },
+    {
+        "id": "db026363602ae16b",
+        "type": "postgresql",
+        "z": "b1914b3d9178b02e",
+        "name": "dash",
+        "query": "WITH doses AS (\n  SELECT\n    d.paciente,\n    d.nome AS dispositivo,\n    dp.dispositivo_id,\n    dp.compartimento,\n    dp.medicamento,\n    dp.horario,\n    ((now() AT TIME ZONE 'America/Sao_Paulo')::date + dp.horario)\n      AT TIME ZONE 'America/Sao_Paulo' AS alvo,\n    make_interval(mins => dp.tolerancia_min) AS tol\n  FROM dose_programada dp\n  JOIN dispositivo d ON d.id = dp.dispositivo_id\n  WHERE dp.ativo\n)\nSELECT\n  x.paciente,\n  x.dispositivo,\n  x.compartimento,\n  x.medicamento,\n  left(x.horario::text, 5) AS horario,\n  to_char(e.ocorrido_em AT TIME ZONE 'America/Sao_Paulo', 'HH24:MI') AS retirada_em,\n  CASE\n    WHEN e.ocorrido_em IS NOT NULL THEN 'tomada'\n    WHEN now() < x.alvo - x.tol THEN 'agendada'\n    WHEN now() <= x.alvo + x.tol THEN 'aguardando'\n    ELSE 'perdida'\n  END AS status\nFROM doses x\nLEFT JOIN LATERAL (\n  SELECT ev.ocorrido_em\n  FROM evento ev\n  WHERE ev.dispositivo_id = x.dispositivo_id\n    AND ev.compartimento = x.compartimento\n    AND ev.tipo = 'retirada'\n    AND ev.ocorrido_em BETWEEN x.alvo - x.tol AND x.alvo + x.tol\n  ORDER BY ev.ocorrido_em\n  LIMIT 1\n) e ON true\nORDER BY x.horario;",
+        "postgreSQLConfig": "f1438fc7824ee337",
+        "split": false,
+        "rowsPerMsg": "1",
+        "outputs": 1,
+        "x": 570,
+        "y": 580,
+        "wires": [
+            [
+                "96af2b6dfb5e66f7"
+            ]
+        ]
+    },
+    {
+        "id": "28e07343585e9562",
+        "type": "ui-form",
+        "z": "b1914b3d9178b02e",
+        "name": "Cadastrar doses",
+        "group": "7fbfad4e4b0cfebc",
+        "label": "",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "options": [
+            {
+                "label": "Dispositivo",
+                "key": "dispositivo_id",
+                "type": "dropdown",
+                "required": true,
+                "rows": null
+            },
+            {
+                "label": "Compartimento",
+                "key": "compartimento",
+                "type": "number",
+                "required": true,
+                "rows": null
+            },
+            {
+                "label": "Medicamento",
+                "key": "medicamento",
+                "type": "text",
+                "required": true,
+                "rows": null
+            },
+            {
+                "label": "Horário",
+                "key": "horario",
+                "type": "time",
+                "required": true,
+                "rows": null
+            },
+            {
+                "label": "Tolerância (padrão: 30)",
+                "key": "tolerancia_min",
+                "type": "number",
+                "required": false,
+                "rows": null
+            }
+        ],
+        "formValue": {
+            "dispositivo_id": "",
+            "compartimento": "",
+            "medicamento": "",
+            "horario": "",
+            "tolerancia_min": ""
+        },
+        "payload": "",
+        "submit": "Cadastrar",
+        "cancel": "Limpar",
+        "resetOnSubmit": true,
+        "topic": "topic",
+        "topicType": "msg",
+        "splitLayout": "",
+        "className": "",
+        "passthru": false,
+        "dropdownOptions": [],
+        "x": 325.234375,
+        "y": 858.23828125,
+        "wires": [
+            [
+                "5622040c22d22d6b"
+            ]
+        ]
+    },
+    {
+        "id": "5622040c22d22d6b",
+        "type": "function",
+        "z": "b1914b3d9178b02e",
+        "name": "function 3",
+        "func": "const f = msg.payload;\nconst comp = parseInt(f.compartimento, 10);\nconst tol = (f.tolerancia_min === \"\" || f.tolerancia_min == null)\n    ? 30 : parseInt(f.tolerancia_min, 10);\n\nif (!f.dispositivo_id || !f.horario || !f.medicamento || !(comp >= 1) || !(tol >= 0)) {\n    msg.payload = \"Preencha todos os campos corretamente.\";\n    return [null, msg];            // saída 2: aviso de erro\n}\n\nmsg.params = [f.dispositivo_id, comp, f.medicamento.trim(), f.horario, tol];\nreturn [msg, null];              // saída 1: segue para o banco",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 485.234375,
+        "y": 858.23828125,
+        "wires": [
+            [
+                "8b6c6337a613b3de"
+            ],
+            [
+                "c84cea0999f8569c"
+            ]
+        ]
+    },
+    {
+        "id": "d2bb3592ef14d1f5",
+        "type": "postgresql",
+        "z": "b1914b3d9178b02e",
+        "name": "",
+        "query": "INSERT INTO dose_programada\n  (dispositivo_id, compartimento, medicamento, horario, tolerancia_min)\nVALUES ($1, $2, $3, $4, $5)\nRETURNING id;",
+        "postgreSQLConfig": "f1438fc7824ee337",
+        "split": false,
+        "rowsPerMsg": 1,
+        "outputs": 1,
+        "x": 875.234375,
+        "y": 858.23828125,
+        "wires": [
+            [
+                "bb81a799abbdfd98"
+            ]
+        ]
+    },
+    {
+        "id": "c84cea0999f8569c",
+        "type": "ui-notification",
+        "z": "b1914b3d9178b02e",
+        "ui": "0e7e29656ea11662",
+        "position": "top right",
+        "colorDefault": true,
+        "color": "#000000",
+        "displayTime": "3",
+        "showCountdown": true,
+        "outputs": 1,
+        "allowDismiss": true,
+        "dismissText": "Close",
+        "allowConfirm": false,
+        "confirmText": "Confirm",
+        "showInput": false,
+        "inputType": "text",
+        "inputLabel": "",
+        "raw": false,
+        "className": "",
+        "name": "",
+        "x": 895.234375,
+        "y": 958.23828125,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b1bba747693401fc",
+        "type": "inject",
+        "z": "b1914b3d9178b02e",
+        "name": "cadastrodoses",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "1",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 185.234375,
+        "y": 738.23828125,
+        "wires": [
+            [
+                "4cc54bba22d2e88b"
+            ]
+        ]
+    },
+    {
+        "id": "4cc54bba22d2e88b",
+        "type": "function",
+        "z": "b1914b3d9178b02e",
+        "name": "function 5",
+        "func": "msg.pgConfig = {\n  user: \"postgres.jbnlcdliinhlrixgzeml\",\n  password: env.get(\"SUPABASE_DB_PASSWORD\"),\n  host: \"aws-1-us-east-1.pooler.supabase.com\",\n  database: \"postgres\",\n  port: 5432,\n  ssl: { rejectUnauthorized: false }\n};\nreturn msg;\n\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 420,
+        "y": 740,
+        "wires": [
+            [
+                "7ec4fe2cc46cf5ae"
+            ]
+        ]
+    },
+    {
+        "id": "7ec4fe2cc46cf5ae",
+        "type": "postgresql",
+        "z": "b1914b3d9178b02e",
+        "name": "CadastroDose",
+        "query": "SELECT id, nome, paciente FROM dispositivo ORDER BY nome;",
+        "postgreSQLConfig": "f1438fc7824ee337",
+        "split": false,
+        "rowsPerMsg": 1,
+        "outputs": 1,
+        "x": 605.234375,
+        "y": 738.23828125,
+        "wires": [
+            [
+                "26aa7c4facf8c88b"
+            ]
+        ]
+    },
+    {
+        "id": "26aa7c4facf8c88b",
+        "type": "function",
+        "z": "b1914b3d9178b02e",
+        "name": "function 6",
+        "func": "node.warn(\"recebido: \" + JSON.stringify(msg.payload));  // aparece na barra lateral de debug\n\nconst rows = Array.isArray(msg.payload) ? msg.payload : [msg.payload];\n\nmsg.ui_update = {\n    dropdownOptions: rows.map(d => ({\n        dropdown: \"dispositivo_id\",\n        value: d.id,\n        label: d.nome + (d.paciente ? \" — \" + d.paciente : \"\")\n    }))\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 845.234375,
+        "y": 738.23828125,
+        "wires": [
+            [
+                "28e07343585e9562",
+                "e156012da4727606"
+            ]
+        ]
+    },
+    {
+        "id": "bb81a799abbdfd98",
+        "type": "function",
+        "z": "b1914b3d9178b02e",
+        "name": "function 4",
+        "func": "msg.payload = \"Dose cadastrada (id \" + msg.payload[0].id + \").\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1045.234375,
+        "y": 858.23828125,
+        "wires": [
+            [
+                "c84cea0999f8569c"
+            ]
+        ]
+    },
+    {
+        "id": "fbb752ca270e6ef2",
+        "type": "catch",
+        "z": "b1914b3d9178b02e",
+        "name": "",
+        "scope": [
+            "b1bba747693401fc"
+        ],
+        "uncaught": false,
+        "x": 405.234375,
+        "y": 1018.23828125,
+        "wires": [
+            [
+                "7676376e23ded667"
+            ]
+        ]
+    },
+    {
+        "id": "7676376e23ded667",
+        "type": "function",
+        "z": "b1914b3d9178b02e",
+        "name": "function 7",
+        "func": "msg.payload = \"Erro ao cadastrar: \" + msg.error.message;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 625.234375,
+        "y": 1018.23828125,
+        "wires": [
+            [
+                "c84cea0999f8569c"
+            ]
+        ]
+    },
+    {
+        "id": "e156012da4727606",
+        "type": "debug",
+        "z": "b1914b3d9178b02e",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1045.234375,
+        "y": 698.23828125,
+        "wires": []
+    },
+    {
+        "id": "8b6c6337a613b3de",
+        "type": "function",
+        "z": "b1914b3d9178b02e",
+        "name": "function 8",
+        "func": "msg.pgConfig = {\n  user: \"postgres.jbnlcdliinhlrixgzeml\",\n  password: env.get(\"SUPABASE_DB_PASSWORD\"),\n  host: \"aws-1-us-east-1.pooler.supabase.com\",\n  database: \"postgres\",\n  port: 5432,\n  ssl: { rejectUnauthorized: false }\n};\nreturn msg;\n\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 685.234375,
+        "y": 858.23828125,
+        "wires": [
+            [
+                "d2bb3592ef14d1f5"
+            ]
+        ]
+    },
+    {
+        "id": "60a86f8f84bcf2e7",
+        "type": "inject",
+        "z": "b1914b3d9178b02e",
+        "name": "deletarDoses",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "30",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 180,
+        "y": 1160,
+        "wires": [
+            [
+                "309bf795d5fb9ed9"
+            ]
+        ]
+    },
+    {
+        "id": "309bf795d5fb9ed9",
+        "type": "function",
+        "z": "b1914b3d9178b02e",
+        "name": "function 9",
+        "func": "msg.pgConfig = {\n  user: \"postgres.jbnlcdliinhlrixgzeml\",\n  password: env.get(\"SUPABASE_DB_PASSWORD\"),\n  host: \"aws-1-us-east-1.pooler.supabase.com\",\n  database: \"postgres\",\n  port: 5432,\n  ssl: { rejectUnauthorized: false }\n};\nreturn msg;\n\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 400,
+        "y": 1160,
+        "wires": [
+            [
+                "b71f67318d7d31fe"
+            ]
+        ]
+    },
+    {
+        "id": "b71f67318d7d31fe",
+        "type": "postgresql",
+        "z": "b1914b3d9178b02e",
+        "name": "listarDoses",
+        "query": "SELECT dp.id, d.paciente, d.nome AS dispositivo, dp.compartimento,\n       dp.medicamento, left(dp.horario::text, 5) AS horario,\n       dp.tolerancia_min, dp.ativo\nFROM dose_programada dp\nJOIN dispositivo d ON d.id = dp.dispositivo_id\nORDER BY dp.horario, dp.id;",
+        "postgreSQLConfig": "f1438fc7824ee337",
+        "split": false,
+        "rowsPerMsg": 1,
+        "outputs": 1,
+        "x": 630,
+        "y": 1160,
+        "wires": [
+            [
+                "b3780d7bf1e5cd32"
+            ]
+        ]
+    },
+    {
+        "id": "7d931729056924a9",
+        "type": "ui-table",
+        "z": "b1914b3d9178b02e",
+        "group": "02d7922915043eb8",
+        "name": "Deletar Doses",
+        "label": "",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "maxrows": 0,
+        "passthru": false,
+        "autocols": false,
+        "showSearch": true,
+        "deselect": true,
+        "selectionType": "none",
+        "columns": [
+            {
+                "title": "Paciente",
+                "key": "paciente",
+                "keyType": "key",
+                "type": "text",
+                "width": "",
+                "align": "start"
+            },
+            {
+                "title": "Dispositivo",
+                "key": "dispositivo",
+                "keyType": "key",
+                "type": "text",
+                "width": "",
+                "align": "start"
+            },
+            {
+                "title": "Compartimento",
+                "key": "compartimento",
+                "keyType": "key",
+                "type": "text",
+                "width": "",
+                "align": "start"
+            },
+            {
+                "title": "Medicamento",
+                "key": "medicamento",
+                "keyType": "key",
+                "type": "text",
+                "width": "",
+                "align": "start"
+            },
+            {
+                "title": "Horário",
+                "key": "horario",
+                "keyType": "key",
+                "type": "text",
+                "width": "",
+                "align": "start"
+            },
+            {
+                "title": "Tolerância (min)",
+                "key": "tolerancia_min",
+                "keyType": "key",
+                "type": "text",
+                "width": "",
+                "align": "start"
+            },
+            {
+                "title": "",
+                "key": "Excluir",
+                "keyType": "str",
+                "type": "button",
+                "width": "",
+                "align": "start"
+            }
+        ],
+        "mobileBreakpoint": "sm",
+        "mobileBreakpointType": "defaults",
+        "action": "append",
+        "className": "",
+        "x": 220,
+        "y": 1300,
+        "wires": [
+            [
+                "35b69488532d9c9c"
+            ]
+        ]
+    },
+    {
+        "id": "35b69488532d9c9c",
+        "type": "function",
+        "z": "b1914b3d9178b02e",
+        "name": "function 10",
+        "func": "const row = msg.payload;\nconst agora = Date.now();\nconst pend = context.get(\"pendente\");\n\n// 1º clique (ou clique em outra linha, ou fora do prazo): só pede confirmação\nif (!pend || pend.id !== row.id || agora > pend.ate) {\n  context.set(\"pendente\", { id: row.id, ate: agora + 10000 });\n  msg.payload = \"Clique em Excluir de novo em até 10 s para confirmar: \"\n              + row.medicamento + \" às \" + row.horario + \".\";\n  return [null, msg];                  // saída 2 → notification\n}\n\n// 2º clique: exclui\ncontext.set(\"pendente\", null);\nmsg.pgConfig = {\n  user: \"postgres.jbnlcdliinhlrixgzeml\",\n  password: env.get(\"SUPABASE_DB_PASSWORD\"),\n  host: \"aws-1-us-east-1.pooler.supabase.com\",\n  database: \"postgres\",\n  port: 5432,\n  ssl: { rejectUnauthorized: false }\n};\nmsg.params = [row.id];\nreturn [msg, null];                    // saída 1 → postgresql",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 390,
+        "y": 1300,
+        "wires": [
+            [
+                "1a662ff278a83de1"
+            ]
+        ]
+    },
+    {
+        "id": "1a662ff278a83de1",
+        "type": "postgresql",
+        "z": "b1914b3d9178b02e",
+        "name": "deletarDose",
+        "query": "DELETE FROM dose_programada WHERE id = $1 RETURNING id;",
+        "postgreSQLConfig": "f1438fc7824ee337",
+        "split": false,
+        "rowsPerMsg": 1,
+        "outputs": 1,
+        "x": 630,
+        "y": 1300,
+        "wires": [
+            [
+                "ebbba0596c121b74"
+            ]
+        ]
+    },
+    {
+        "id": "ebbba0596c121b74",
+        "type": "function",
+        "z": "b1914b3d9178b02e",
+        "name": "function 11",
+        "func": "msg.payload = (msg.payload && msg.payload.length)\n  ? \"Dose excluída.\"\n  : \"Essa dose já não existe.\";\ndelete msg.params;      // importante: veja a observação abaixo\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 870,
+        "y": 1300,
+        "wires": [
+            [
+                "cf0ce709f536468c",
+                "309bf795d5fb9ed9"
+            ]
+        ]
+    },
+    {
+        "id": "cf0ce709f536468c",
+        "type": "ui-notification",
+        "z": "b1914b3d9178b02e",
+        "ui": "0e7e29656ea11662",
+        "position": "top right",
+        "colorDefault": true,
+        "color": "#000000",
+        "displayTime": "3",
+        "showCountdown": true,
+        "outputs": 1,
+        "allowDismiss": true,
+        "dismissText": "Close",
+        "allowConfirm": false,
+        "confirmText": "Confirm",
+        "showInput": false,
+        "inputType": "text",
+        "inputLabel": "",
+        "raw": false,
+        "className": "",
+        "name": "",
+        "x": 1110,
+        "y": 1300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b3780d7bf1e5cd32",
+        "type": "function",
+        "z": "b1914b3d9178b02e",
+        "name": "function 12",
+        "func": "node.send({ payload: [] });   // 1º: esvazia a tabela\nreturn msg;    ",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 810,
+        "y": 1160,
+        "wires": [
+            [
+                "7d931729056924a9"
+            ]
+        ]
+    },
+    {
+        "id": "9cdf5b16eaafa692",
+        "type": "ui-table",
+        "z": "b1914b3d9178b02e",
+        "group": "49dc2f19cceea80b",
+        "name": "",
+        "label": "",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "maxrows": 0,
+        "passthru": false,
+        "autocols": true,
+        "showSearch": true,
+        "deselect": true,
+        "selectionType": "none",
+        "columns": [],
+        "mobileBreakpoint": "sm",
+        "mobileBreakpointType": "defaults",
+        "action": "append",
+        "className": "",
+        "x": 930,
+        "y": 580,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "96af2b6dfb5e66f7",
+        "type": "function",
+        "z": "b1914b3d9178b02e",
+        "name": "function 13",
+        "func": "node.send({ payload: [] });   // 1º: esvazia a tabela\nreturn msg;    ",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 750,
+        "y": 580,
+        "wires": [
+            [
+                "9cdf5b16eaafa692"
+            ]
+        ]
+    },
+    {
+        "id": "b4a948db04990553",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-contrib-postgresql": "0.16.2",
+            "@flowfuse/node-red-dashboard": "1.37.0"
+        }
+    }
+]
