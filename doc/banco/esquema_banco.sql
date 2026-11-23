@@ -82,3 +82,8 @@ ON CONFLICT DO NOTHING;
 -- FROM evento
 -- WHERE dispositivo_id = 'disp-01' AND tipo = 'retirada'
 -- GROUP BY dia ORDER BY dia;
+
+-- altera a tabela dose_programada para deixar unique dispositivo + compartimento
+ALTER TABLE dose_programada
+ADD CONSTRAINT dispositivo_id_compartipento_unique
+UNIQUE (dispositivo_id, compartimento);
